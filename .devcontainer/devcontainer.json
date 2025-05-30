@@ -1,0 +1,17 @@
+{
+  "name": "Microservices Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "auth",
+  "workspaceFolder": "/workspace",
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    "esbenp.prettier-vscode"
+  ],
+  "postCreateCommand": "pip install -r backend/service-auth/requirements.txt",
+  "forwardPorts": [8000, 8001, 8002, 3000],
+  "remoteUser": "vscode"
+}

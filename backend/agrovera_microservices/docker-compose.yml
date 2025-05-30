@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  auth_service:
+    build: ./auth_service
+    container_name: auth_service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./auth_service:/app
+    depends_on:
+      - db
+
+  user_service:
+    build: ./user_service
+    container_name: user_service
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./user_service:/app
+    depends_on:
+      - db
+
+  payment_service:
+    build: ./payment_service
+    container_name: payment_service
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./payment_service:/app
+    depends_on:
+      - db
+
+  contact_service: # ✅ NOUVEAU SERVICE
+    build: ./contact_service
+    container_name: contact_service
+    ports:
+      - "8003:8000"
+    volumes:
+      - ./contact_service:/app
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: coredb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+  grafana-data:

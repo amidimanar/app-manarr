@@ -1,0 +1,52 @@
+services:
+  auth:
+    build: ./backend/agrovera_microservices/auth_service
+    ports:
+      - "8001:8000"
+    volumes:
+      - .:/workspace
+    depends_on:
+      - db
+
+  users:
+    build: ./backend/agrovera_microservices/user_service
+    ports:
+      - "8002:8000"
+    depends_on:
+      - db
+
+  payments:
+    build: ./backend/agrovera_microservices/payment_service
+    ports:
+      - "8004:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+
+  db:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: coredb
+
+  selenium_test_member:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile
+    depends_on:
+      - frontend
+      - users
+      - payments
+      - db
+    volumes:
+      - ./tests:/app/tests
+    container_name: selenium_test_member
