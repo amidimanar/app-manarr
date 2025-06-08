@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'git@github.com:amidimanar/app-manarr.git', credentialsId: 'jenkins-ssh-key'
+                git url: 'https://github.com/amidimanar/app-manarr.git', branch: 'main'
             }
         }
 
