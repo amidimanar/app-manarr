@@ -1,38 +1,49 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Cloner le dépôt') {
-            steps {
-                echo 'Clonage automatique par Jenkins depuis GitHub...'
-            }
-        }
-
-        stage('Installer les dépendances') {
-            steps {
-                echo 'Installation des dépendances...'
-                sh 'python3 -m venv venv'
-                sh './venv/bin/pip install -r requirements.txt'
-            }
-        }
-
-        stage('Exécuter les tests') {
-            steps {
-                echo 'Lancement des tests Django...'
-                sh './venv/bin/python manage.py test'
-            }
-        }
+    environment {
+        DOCKER_REGISTRY = "localhost:5000"
+        SONAR_URL = "http://localhost:9000"
+        SONAR_TOKEN = credentials('sonar-token') // à configurer dans Jenkins
     }
 
-    post {
-        always {
-            echo 'Pipeline terminé.'
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'git@github.com:amidimanar/app-manarr.git', credentialsId: 'jenkins-ssh-key'
+            }
         }
-        failure {
-            echo 'Le pipeline a échoué ❌'
+
+        stage('Analyse SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'sonar-scanner -Dsonar.projectKey=app-manarr -Dsonar.sources=backend -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN'
+                }
+            }
         }
-        success {
-            echo 'Le pipeline a réussi ✅'
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    def base = 'backend/agrovera_microservices'
+                    def services = ['auth_service', 'user_service', 'payment_service', 'contact_service']
+                    for (svc in services) {
+                        sh "docker build -t ${DOCKER_REGISTRY}/${svc}:latest ${base}/${svc}"
+                    }
+                    sh "docker build -t ${DOCKER_REGISTRY}/frontend:latest ./frontend"
+                }
+            }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                script {
+                    def services = ['auth_service', 'user_service', 'payment_service', 'contact_service', 'frontend']
+                    for (svc in services) {
+                        sh "docker push ${DOCKER_REGISTRY}/${svc}:latest"
+                    }
+                }
+            }
         }
     }
 }
