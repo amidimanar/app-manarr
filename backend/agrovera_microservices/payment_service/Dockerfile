@@ -1,17 +1,13 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-# Installer netcat
-RUN apt-get update && apt-get install -y netcat-openbsd
-
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Donner les droits d’exécution au script d'entrée
-RUN chmod +x /app/entrypoint.sh
-
-ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "payment_service.wsgi:application", "--bind", "0.0.0.0:8000"]
