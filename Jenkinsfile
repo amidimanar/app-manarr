@@ -14,13 +14,16 @@ pipeline {
             }
         }
 
-        stage('Analyse SonarQube') {
+        stage('Code Quality') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner -Dsonar.projectKey=app-manarr -Dsonar.sources=backend -Dsonar.host.url=$SONAR_URL -Dsonar.login=$SONAR_TOKEN'
-                }
-            }
-        }
+                sh '''
+                    pip install flake8 pylint bandit
+                    flake8 backend/agrovera_microservices
+                    pylint backend/agrovera_microservices
+                    bandit -r backend/agrovera_microservices
+                '''
+    }
+}
 
         stage('Build Docker Images') {
             steps {
