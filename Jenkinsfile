@@ -1,30 +1,38 @@
 pipeline {
-    agent any
-
-    environment {
-        DOCKER_REGISTRY = "localhost:5000"
-        SONAR_URL = "http://localhost:9000"
-        SONAR_TOKEN = credentials('sonar-token') // à configurer dans Jenkins
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                git url: 'https://github.com/amidimanar/app-manarr.git', branch: 'main'
-            }
+    agent {
+        docker {
+            image 'python:3.11-slim'
+            args '-u root:root'  // Pour exécuter en root (facilite l'install)
         }
-
-        stage('Code Quality') {
+    }
+    environment {
+        PYTHONUNBUFFERED = '1'  // Pour que les logs s'affichent directement
+    }
+    stages {
+        stage('Install linters') {
             steps {
                 sh '''
+                    pip install --upgrade pip
                     pip install flake8 pylint bandit
-                    flake8 backend/agrovera_microservices
-                    pylint backend/agrovera_microservices
-                    bandit -r backend/agrovera_microservices
                 '''
-    }
-}
-
+            }
+        }
+        stage('Run flake8') {
+            steps {
+                sh 'flake8 backend/agrovera_microservices'
+            }
+        }
+        stage('Run pylint') {
+            steps {
+                sh 'pylint backend/agrovera_microservices'
+            }
+        }
+        stage('Run bandit') {
+            steps {
+                sh 'bandit -r backend/agrovera_microservices'
+            }
+        }
+    
         stage('Build Docker Images') {
             steps {
                 script {
