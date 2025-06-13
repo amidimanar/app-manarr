@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME = "ghcr.io/ton-user-github/auth-service:latest"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/amidimanar/app-manarr.git', branch: 'main'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                cd backend/agrovera_microservices/auth_service
+                docker build -t $IMAGE_NAME .
+                """
+            }
+        }
+
+        stage('Login to GHCR') {
+            steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh "echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin"
+                }
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh "docker push $IMAGE_NAME"
+            }
+        }
+
+        stage('Deploy to K3s') {
+            steps {
+                sh "kubectl apply -f k8s/deployment-auth.yaml"
+            }
+        }
+    }
+}
