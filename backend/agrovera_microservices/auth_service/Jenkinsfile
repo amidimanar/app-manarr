@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "ghcr.io/ton-user-github/auth-service:latest"
+        IMAGE_NAME = "ghcr.io/amidimanar/auth-service:latest"
     }
 
     stages {
