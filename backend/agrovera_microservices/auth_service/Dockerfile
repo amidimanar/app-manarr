@@ -17,6 +17,9 @@ COPY requirements.txt /app/
 # Installer les dépendances Python
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+# Installer kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && chmod +x kubectl && mv kubectl /usr/local/bin/
 
 # Copier tout le projet
 COPY . /app/
