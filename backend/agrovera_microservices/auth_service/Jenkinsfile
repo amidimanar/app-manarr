@@ -22,7 +22,7 @@ pipeline {
 
         stage('Login to GHCR') {
             steps {
-                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                withCredentials([string(credentialsId: 'jenkins-ghcr-token', variable: 'GITHUB_TOKEN')]) {
                     sh 'echo $GITHUB_TOKEN | docker login ghcr.io -u amidimanar --password-stdin'
                 }
             }
