@@ -36,10 +36,18 @@ pipeline {
             }
         }
 
-        stage('Deploy to K3s') {
-            steps {
-                sh "/usr/local/bin/kubectl apply -f k8s/deployment-auth.yaml"
-            }
-        }
+            stage('Deploy to K3s') {
+    steps {
+        sh '''
+        docker run --rm \
+            --network=host \
+            -v $PWD/k8s:/manar/k8s \
+            -v /usr/local/bin/kubectl:/usr/bin/kubectl \
+            -v $HOME/.kube:/root/.kube \
+            alpine:latest /bin/sh -c "kubectl apply -f /manar/k8s/deployment-auth.yaml"
+        '''
+    }
+}
+
     }
 }
