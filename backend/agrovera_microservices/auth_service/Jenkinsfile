@@ -37,7 +37,7 @@ pipeline {
 
         stage('Deploy to K3s') {
             steps {
-                sh "kubectl apply -f k8s/deployment-auth.yaml"
+                sh "/usr/local/bin/kubectl apply -f k8s/deployment-auth.yaml"
             }
         }
     }
