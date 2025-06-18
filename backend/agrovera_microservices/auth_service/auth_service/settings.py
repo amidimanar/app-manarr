@@ -14,6 +14,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'authentication',
+    'django_prometheus',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
