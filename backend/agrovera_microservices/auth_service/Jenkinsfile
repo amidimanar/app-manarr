@@ -5,6 +5,11 @@ pipeline {
         IMAGE_NAME = "ghcr.io/amidimanar/auth-service:latest"
         PATH = "/usr/local/bin:$PATH"
     }
+        agent {
+        docker {
+            image 'bitnami/kubectl:latest'
+        }
+    }
 
     stages {
         stage('Checkout') {
