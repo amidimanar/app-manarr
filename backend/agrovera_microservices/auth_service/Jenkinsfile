@@ -1,10 +1,5 @@
 pipeline {
-        agent {
-        docker {
-            image 'bitnami/kubectl:latest'  // ou une autre image docker qui contient kubectl
-            args '-v /var/run/docker.sock:/var/run/docker.sock' // pour pouvoir utiliser Docker dans le container
-        }
-    }
+        agent any
 
     environment {
         IMAGE_NAME = "ghcr.io/amidimanar/auth-service:latest"
